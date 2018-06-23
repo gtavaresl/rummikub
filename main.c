@@ -68,11 +68,12 @@ int distribuiAlternate(pilha *carta, player *jogador, int nplayers, int ncartas)
         jogador[i].turno=0;
         jogador[i].mao=(int *)malloc(jogador[i].manga*sizeof(int));
     }
-    for(i=0,p=0,mod=0;i<14*nplayers;i++,ncartas--,p++){
-        if(mod==0&&p<=1);
-        else if(i%nplayers==0) p=0,mod++;
+    for(i=0,p=0,mod=0;i<14*nplayers;i++,ncartas--){
+        if(nplayers>1 && i!=0 && i%nplayers==0) p=0,mod++;
         jogador[p].mao[mod]=i;
         printf("Mao %d do jogador %d: %c%c\n",mod,p,carta[jogador[p].mao[mod]].valor,carta[jogador[p].mao[mod]].naipe);
+        if(nplayers==1) mod++;
+        else p++;
     }
     printf("\nCartas na pilha: %d\n",ncartas);
     return ncartas;
