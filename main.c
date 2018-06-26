@@ -14,8 +14,12 @@ typedef struct{
 }player;
 
 typedef struct{
+    int deck,grupo; // TENHO QUE AJEITAR PRA FAZER FUNCIONAR O SISTEMA DE COMBINAÇÕES
+}jogada;
+
+typedef struct{
     int *jogada;
-    int quantidadejogada;
+    int quantidadejogada,trucos;
 }tabela;
 
 void lePilha(FILE *arquivo, pilha *carta){
@@ -86,12 +90,12 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao){
     for(int i=0;i<jogador[posicao].manga;i++)   printf("Carta[%d]: %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
 }
 
-void vizualizaMesa(pilha *carta,tabela mesa, int ncartas){
+void vizualizaMesa(pilha *carta,tabela *mesa, int ncartas){
+    printf("Total de cartas na mesa: %d\n\n",mesa->quantidadejogada);
     printf("Mesa:\n");
-    if(mesa.jogada==NULL) printf("Vazia!\n");
-    else for(int i=0;i<mesa.quantidadejogada;i++) printf("%d- %c%c\n",i,carta[mesa.jogada[i]].valor,carta[mesa.jogada[i]].naipe);
-    printf("Total de cartas na mesa: %d\n",mesa.quantidadejogada);
-    printf("Total de cartas na pilha: %d\n",ncartas);
+    if(mesa->jogada==NULL) printf("Vazia!\n");
+    else for(int i=0;i<mesa->quantidadejogada;i++) printf("%d- %c%c\n",i,carta[mesa->jogada[i]].valor,carta[mesa->jogada[i]].naipe);
+    printf("\nTotal de cartas na pilha: %d\n",ncartas);
 }
 
 int pedeCarta(pilha *carta, player *jogador, int posicao, int ncartas){
@@ -121,12 +125,12 @@ void menuTurn(){
     printf("<?> ");
 }
 
-int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
+int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
     printf("\nTurno %d do jogador %d",jogador[posicao].turno,posicao);
     menuTurn();
     int op,p=-1,transferencia=0;
     //int qtdinicial=jogador[posicao].manga;
-    int *usada=(int*)calloc((jogador[posicao].manga+mesa.quantidadejogada),sizeof(int));
+    int *usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
     int *transfere=NULL;
     scanf("%d",&op);
     while(op!=8){
@@ -161,12 +165,12 @@ int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
         }
         if(op==5){
             if(!jogador[posicao].turno) printf("Primeira jogada!\n");
-            else if(mesa.quantidadejogada==0) printf("Mesa vazia!\n");
+            else if(mesa->quantidadejogada==0) printf("Mesa vazia!\n");
             else{
                 vizualizaMesa(carta,mesa,ncartas);
                 printf("Escolha uma carta: ");
                 scanf("%d",&p);
-                while(p<0||p>=(mesa.quantidadejogada)){
+                while(p<0||p>=(mesa->quantidadejogada)){
                     printf("Entrada invalida!\n");
                     printf("Escolha uma carta: ");
                     scanf("%d",&p);
@@ -189,14 +193,14 @@ int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
             if(transfere!=NULL){
                 printf("Area de transferencia: ");
                 for(int i=0;i<transferencia;i++) printf("%d - %c%c\n",i,carta[transfere[i]].valor,carta[transfere[i]].naipe);
-                mesa.jogada=(int *)realloc(mesa.jogada,(mesa.quantidadejogada+transferencia)*sizeof(int));
-                if(mesa.jogada==NULL) printf("ERRO!");
+                mesa->jogada=(int *)realloc(mesa->jogada,(mesa->quantidadejogada+transferencia)*sizeof(int));
+                if(mesa->jogada==NULL) printf("ERRO!");
                 else{
                     //PRECISO VALIDAR JOGADA!
-                    for(int i=mesa.quantidadejogada;i<mesa.quantidadejogada+transferencia;i++) mesa.jogada[i]=transfere[i-mesa.quantidadejogada];
+                    for(int i=mesa->quantidadejogada;i<(mesa->quantidadejogada+transferencia);i++) mesa->jogada[i]=transfere[i-mesa->quantidadejogada];
+                    mesa->quantidadejogada+=transferencia;
                     printf("Mesa:\n");
-                    for(int i=0;i<(mesa.quantidadejogada+transferencia);i++) printf("%d- %c%c\n",i,carta[mesa.jogada[i]].valor,carta[mesa.jogada[i]].naipe);
-                    mesa.quantidadejogada+=transferencia;
+                    for(int i=0;i<(mesa->quantidadejogada);i++) printf("%d- %c%c\n",i,carta[mesa->jogada[i]].valor,carta[mesa->jogada[i]].naipe);
                     int j=0;
                     for(int i=0;i<jogador[posicao].manga;i++){
                         if(!usada[i]){ // não usado
@@ -210,7 +214,7 @@ int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
                     transfere=NULL;
                     transferencia=0;
                     free(usada);
-                    usada=(int*)calloc((jogador[posicao].manga+mesa.quantidadejogada),sizeof(int));
+                    usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
                     //jogador[posicao].turno++;
                 }
             }else printf("Area de transferencia vazia!\n");
@@ -221,7 +225,7 @@ int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
                 transfere=NULL;
                 transferencia=0;
                 free(usada);
-                usada=(int*)calloc((jogador[posicao].manga+mesa.quantidadejogada),sizeof(int));
+                usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
                 printf("Area de transferencia limpa!\n");
             }else printf("Area de transferencia vazia!\n");
         }
@@ -240,9 +244,10 @@ int turn(pilha *carta, player *jogador,tabela mesa, int posicao, int ncartas){
 int main(){
     srand(time(NULL));
     pilha *carta = (pilha *)malloc(106*sizeof(pilha));
-    tabela mesa;
-    mesa.jogada=NULL;
-    mesa.quantidadejogada=0;
+    tabela *mesa = (tabela *)malloc(sizeof(tabela));
+    mesa->jogada=NULL;
+    mesa->quantidadejogada=0;
+    mesa->trucos=0;
     FILE *arquivo;
     printf("Entre com o numero de jogadores (1 a 4): ");
     int nplayers,ncartas=106;
