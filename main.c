@@ -288,40 +288,45 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
 }
 
 int validaMesa(tabela *mesa, pilha *carta, int validturno){
-    rhcp *verifica=NULL;
-    int *tamanhoCombo=(int *)calloc(1,sizeof(int));
-    int combo=1;
-    // TENHO QUE CONSERTAR A EXIBIÇÃO DOS COMBOS E COMO CONTAR :: DONE!
-    printf("Combo 1:\n");
-    for(int i=0;i<mesa->quantidadejogada;i++){
-        if(combo!=mesa->jogada[i].grupo){
-            combo++;
-            printf("Combo %d:\n",combo);
-            tamanhoCombo=(int *)realloc(tamanhoCombo,combo*sizeof(int));
-            tamanhoCombo[combo-1]=0;
+    if(mesa->jogada!=NULL){
+        rhcp *verifica=NULL;
+        int *tamanhoCombo=(int *)calloc(1,sizeof(int));
+        int combo=1;
+        // TENHO QUE CONSERTAR A EXIBIÇÃO DOS COMBOS E COMO CONTAR :: DONE!
+        printf("Combo 1:\n");
+        for(int i=0;i<mesa->quantidadejogada;i++){
+            if(combo!=mesa->jogada[i].grupo){
+                combo++;
+                printf("Combo %d:\n",combo);
+                tamanhoCombo=(int *)realloc(tamanhoCombo,combo*sizeof(int));
+                tamanhoCombo[combo-1]=0;
+            }
+            printf("%d- %c%c\n",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
+            tamanhoCombo[combo-1]++;
         }
-        printf("%d- %c%c\n",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
-        tamanhoCombo[combo-1]++;
+        int k=0,jump=0;
+        while(k<combo){
+            printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
+            verifica=(rhcp *)realloc(verifica,tamanhoCombo[k]*sizeof(rhcp));
+            for(int i=jump;i<jump+tamanhoCombo[k];i++){
+                verifica[i-jump]=mesa->jogada[i];
+                printf("Verifica[%d]=%c%c\n",i-jump,carta[verifica[i-jump].deck].valor,carta[verifica[i-jump].deck].naipe);
+            }
+            if(!validaJogada(carta,verifica,tamanhoCombo[k],validturno)){
+                free(tamanhoCombo);
+                free(verifica);
+                return 0;
+            }
+            jump+=tamanhoCombo[k];
+            k++;
+        }
+        free(tamanhoCombo);
+        free(verifica);
+        return 1;
+    }else{
+        printf("Mesa vazia!\n");
+        return 1;
     }
-    int k=0,jump=0;
-    while(k<combo){
-        printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
-        verifica=(rhcp *)realloc(verifica,tamanhoCombo[k]*sizeof(rhcp));
-        for(int i=jump;i<jump+tamanhoCombo[k];i++){
-            verifica[i-jump]=mesa->jogada[i];
-            printf("Verifica[%d]=%c%c\n",i-jump,carta[verifica[i-jump].deck].valor,carta[verifica[i-jump].deck].naipe);
-        }
-        if(!validaJogada(carta,verifica,tamanhoCombo[k],validturno)){
-            free(tamanhoCombo);
-            free(verifica);
-            return 0;
-        }
-        jump+=tamanhoCombo[k];
-        k++;
-    }
-    free(tamanhoCombo);
-    free(verifica);
-    return 1;
 }
 
 void menuTurn(){
