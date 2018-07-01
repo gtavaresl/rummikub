@@ -219,18 +219,6 @@ int pedeCarta(pilha *carta, player *jogador, int posicao, int ncartas){
 int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
     if(transferencia<3) return 0;
     else{
-        if(turno==0){
-            int pontos=0;
-            for(int i=0;i<transferencia;i++){
-                if(carta[transfere[i].deck].valor=='*')   pontos+=20; //Coringa vale 20 pontos ?
-                else if(carta[transfere[i].deck].valor<58) pontos+=((int)carta[transfere[i].deck].valor-48);
-                else pontos+=(int)carta[transfere[i].deck].valor-55;
-            }
-            if(pontos<30){
-                printf("\nA primeira jogada deve somar 30+ pontos!");
-                return 0;
-            }
-        }
         int ok=0;
         if(transferencia==3||transferencia==4){
             for(int i=0;i<transferencia;i++){
@@ -238,7 +226,22 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
                     if((carta[transfere[i].deck].valor==carta[transfere[p].deck].valor&&carta[transfere[i].deck].naipe!=carta[transfere[p].deck].naipe)||carta[transfere[i].deck].valor=='*'||carta[transfere[p].deck].valor=='*') ok++;
                 }
             }
-            if(ok==(((transferencia-1)*transferencia)/2)) return 1;
+            if(ok==(((transferencia-1)*transferencia)/2)){
+                if(turno==0){
+                    int pontos=0;
+                    int i=0;
+                    while(i<3){
+                        if(carta[transfere[i].deck].valor!='*') break;
+                        else i++;
+                    }
+                    if(carta[transfere[i].deck].valor<58) pontos=transferencia*((int)carta[transfere[i].deck].valor-48);
+                    else pontos=transferencia*((int)carta[transfere[i].deck].valor-55);
+                    if(pontos<30){
+                        printf("\nA primeira jogada deve somar 30+ pontos!");
+                        return 0;
+                    }else return 1;
+                }else return 1;
+            }
             else{
                 int a,b;
                 int p=0;
@@ -252,6 +255,14 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
                 a=(int)carta[transfere[p].deck].valor;
                 if(a>48&&a<58) a-=48;
                 else a-=55;
+                if(turno==0){
+                    int pontos=0;
+                    pontos=(transferencia*(2*a-2*p+transferencia-1))/2;
+                    if(pontos<30){
+                        printf("\nA primeira jogada deve somar 30+ pontos!");
+                        return 0;
+                    }
+                }
                 for(int i=(p+1);i<transferencia;i++){
                     b=0;
                     if(carta[transfere[i].deck].naipe==carta[transfere[p].deck].naipe){
@@ -275,6 +286,14 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
             a=(int)carta[transfere[p].deck].valor;
             if(a>48&&a<58) a-=48;
             else a-=55;
+            if(turno==0){
+                int pontos=0;
+                pontos=(transferencia*(2*a-2*p+transferencia-1))/2;
+                if(pontos<30){
+                    printf("\nA primeira jogada deve somar 30+ pontos!");
+                    return 0;
+                }
+            }
             for(int i=(p+1);i<transferencia;i++){
                 b=0;
                 if(carta[transfere[i].deck].naipe==carta[transfere[p].deck].naipe){
