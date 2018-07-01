@@ -66,12 +66,12 @@ void inicializaPilha(pilha *carta){
     }*/
 }
 
-int distribuiAlternate(pilha *carta, player *jogador, int nplayers, int ncartas){
+int distribuiAlternado(pilha *carta, player *jogador, int nplayers, int ncartas){
     int i=0,p=0,mod=0;
     for(i=0;i<nplayers;i++){
         jogador[i].manga=14;
         jogador[i].turno=0;
-        jogador[i].mao=(int *)malloc(jogador[i].manga*sizeof(int));
+        jogador[i].mao=(int *)realloc(jogador[i].mao,jogador[i].manga*sizeof(int));
     }
     for(i=0,p=0,mod=0;i<14*nplayers;i++,ncartas--){
         if(nplayers>1 && i!=0 && i%nplayers==0) p=0,mod++;
@@ -88,13 +88,15 @@ int distribuiAlternate(pilha *carta, player *jogador, int nplayers, int ncartas)
 void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
     printf("\nMao do jogador %d:\n",posicao);
     int i;
-    for(i=0;i<jogador[posicao].manga;i++)   printf("Carta[%d]: %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
+    for(i=0;i<jogador[posicao].manga;i++)   printf("%d- %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
     printf("\n1. Alterar posicao\n2. Ordenar por valor\n3. Ordenar por naipe\n4.Sair\n<?>");
     int h;
     scanf("%d",&h);
+    setbuf(stdin,NULL);
     while(h<1||h>4){
         printf("Opcao invalida!\n<?> ");
         scanf("%d",&h);
+        setbuf(stdin,NULL);
     }
     int aux,j,menor,xua;
     while(1){
@@ -103,16 +105,20 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
             printf("Altera posicao: ");
             printf("\nPosicao 1: ");
             scanf("%d",&a);
+            setbuf(stdin,NULL);
             while(a<0||a>jogador[posicao].manga){
                 printf("Opcao invalida!\n<?> ");
                 scanf("%d",&a);
+                setbuf(stdin,NULL);
             }
             printf("%d: %c%c",a,carta[jogador[posicao].mao[a]].valor,carta[jogador[posicao].mao[a]].naipe);
             printf("\nPosicao 2: ");
             scanf("%d",&b);
+            setbuf(stdin,NULL);
             while(b<0||b>jogador[posicao].manga){
                 printf("Opcao invalida!\n<?> ");
                 scanf("%d",&b);
+                setbuf(stdin,NULL);
             }
             printf("%d: %c%c\n\n",b,carta[jogador[posicao].mao[b]].valor,carta[jogador[posicao].mao[b]].naipe);
             aux=jogador[posicao].mao[a];
@@ -122,11 +128,11 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
             jogador[posicao].mao[b]=aux;
             usada[b]=xua;
         }else if(h==2){
-            printf("\nOrdena por valor:\n");
+            printf("\nOrdenado por valor:\n");
             for(i=0;i<jogador[posicao].manga;i++){
                 menor=i;
                 for(j=i+1;j<jogador[posicao].manga;j++){
-                    if(carta[jogador[posicao].mao[j]].valor<carta[jogador[posicao].mao[menor]].valor) menor=j;
+                    if(carta[jogador[posicao].mao[j]].valor<carta[jogador[posicao].mao[menor]].valor||(carta[jogador[posicao].mao[j]].valor==carta[jogador[posicao].mao[menor]].valor&&carta[jogador[posicao].mao[j]].naipe<carta[jogador[posicao].mao[menor]].naipe)) menor=j;
                 }
                 aux=jogador[posicao].mao[menor];
                 xua=usada[menor];
@@ -136,11 +142,11 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
                 usada[i]=xua;
             }
         }else if(h==3){
-            printf("\nOrdena por naipe\n");
+            printf("\nOrdenado por naipe:\n");
             for(i=0;i<jogador[posicao].manga;i++){
                 menor=i;
                 for(j=i+1;j<jogador[posicao].manga;j++){
-                    if(carta[jogador[posicao].mao[j]].naipe<carta[jogador[posicao].mao[menor]].naipe) menor=j;
+                    if(carta[jogador[posicao].mao[j]].naipe<carta[jogador[posicao].mao[menor]].naipe||(carta[jogador[posicao].mao[j]].naipe==carta[jogador[posicao].mao[menor]].naipe&&carta[jogador[posicao].mao[j]].valor<carta[jogador[posicao].mao[menor]].valor)) menor=j;
                 }
                 aux=jogador[posicao].mao[menor];
                 xua=usada[menor];
@@ -150,12 +156,14 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
                 usada[i]=xua;
             }
         }else if(h==4) break;
-        for(i=0;i<jogador[posicao].manga;i++)   printf("Carta[%d]: %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
+        for(i=0;i<jogador[posicao].manga;i++)   printf("%d- %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
         printf("\n1. Alterar posicao\n2. Ordenar por valor\n3. Ordenar por naipe\n4.Sair\n<?>");
         scanf("%d",&h);
+        setbuf(stdin,NULL);
         while(h<1||h>4){
             printf("Opcao invalida!\n<?> ");
             scanf("%d",&h);
+            setbuf(stdin,NULL);
         }
     }
 }
@@ -192,7 +200,7 @@ void vizualizaMesa(pilha *carta,tabela *mesa, int ncartas){
         }
         int k=0;
         while(k<combo){
-            printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
+            //printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
             k++;
         }
         free(tamanhoCombo);
@@ -201,18 +209,11 @@ void vizualizaMesa(pilha *carta,tabela *mesa, int ncartas){
 }
 
 int pedeCarta(pilha *carta, player *jogador, int posicao, int ncartas){
-    //printf("\nPuxei carta da stack\n");
-    int *hand = (int *)malloc(jogador[posicao].manga*sizeof(int));
-    int i=0;
-    for(i=0;i<jogador[posicao].manga;i++) hand[i]=jogador[posicao].mao[i];
-    free(jogador[posicao].mao);
     jogador[posicao].manga++;
-    jogador[posicao].mao = (int *)malloc(jogador[posicao].manga*sizeof(int));
-    for(i=0;i<((jogador[posicao].manga)-1);i++) jogador[posicao].mao[i]=hand[i];
+    jogador[posicao].mao = (int *)realloc(jogador[posicao].mao,jogador[posicao].manga*sizeof(int));
     jogador[posicao].mao[jogador[posicao].manga-1]=106-ncartas;
     ncartas--;
     return ncartas;
-    //for(i=0;i<((jogador[posicao].manga));i++) printf("Carta %d: %c%c\n",i+1,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
 }
 
 int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
@@ -221,7 +222,7 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
         if(turno==0){
             int pontos=0;
             for(int i=0;i<transferencia;i++){
-                if(carta[transfere[i].deck].valor=='*')   pontos+=20; //Coringa vale 20 pontos
+                if(carta[transfere[i].deck].valor=='*')   pontos+=20; //Coringa vale 20 pontos ?
                 else if(carta[transfere[i].deck].valor<58) pontos+=((int)carta[transfere[i].deck].valor-48);
                 else pontos+=(int)carta[transfere[i].deck].valor-55;
             }
@@ -292,30 +293,30 @@ int validaMesa(tabela *mesa, pilha *carta, int validturno){
         rhcp *verifica=NULL;
         int *tamanhoCombo=(int *)calloc(1,sizeof(int));
         int combo=1;
-        // TENHO QUE CONSERTAR A EXIBIÇÃO DOS COMBOS E COMO CONTAR :: DONE!
-        printf("Combo 1:\n");
         for(int i=0;i<mesa->quantidadejogada;i++){
             if(combo!=mesa->jogada[i].grupo){
                 combo++;
-                printf("Combo %d:\n",combo);
+                //printf("Combo %d:\n",combo);
                 tamanhoCombo=(int *)realloc(tamanhoCombo,combo*sizeof(int));
                 tamanhoCombo[combo-1]=0;
             }
-            printf("%d- %c%c\n",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
+            //printf("%d- %c%c\n",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
             tamanhoCombo[combo-1]++;
         }
         int k=0,jump=0;
         while(k<combo){
-            printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
+            //printf("Tamanho do combo %d = %d\n",k+1,tamanhoCombo[k]);
             verifica=(rhcp *)realloc(verifica,tamanhoCombo[k]*sizeof(rhcp));
             for(int i=jump;i<jump+tamanhoCombo[k];i++){
                 verifica[i-jump]=mesa->jogada[i];
-                printf("Verifica[%d]=%c%c\n",i-jump,carta[verifica[i-jump].deck].valor,carta[verifica[i-jump].deck].naipe);
+                //printf("Verifica[%d]=%c%c\n",i-jump,carta[verifica[i-jump].deck].valor,carta[verifica[i-jump].deck].naipe);
             }
-            if(!validaJogada(carta,verifica,tamanhoCombo[k],validturno)){
-                free(tamanhoCombo);
-                free(verifica);
-                return 0;
+            if(tamanhoCombo[k]!=0){
+                if(!validaJogada(carta,verifica,tamanhoCombo[k],validturno)){
+                    free(tamanhoCombo);
+                    free(verifica);
+                    return 0;
+                }
             }
             jump+=tamanhoCombo[k];
             k++;
@@ -323,10 +324,7 @@ int validaMesa(tabela *mesa, pilha *carta, int validturno){
         free(tamanhoCombo);
         free(verifica);
         return 1;
-    }else{
-        printf("Mesa vazia!\n");
-        return 1;
-    }
+    }else return 1;
 }
 
 void menuTurn(){
@@ -350,9 +348,11 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
     int *usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
     rhcp *transfere=NULL;
     scanf("%d",&op);
+    setbuf(stdin,NULL);
     while(op<1||op>8){
         printf("Opcao invalida!\n<?> ");
         scanf("%d",&op);
+        setbuf(stdin,NULL);
     }
     while(1){
         if(op==1) vizualizaMao(carta,jogador,posicao,usada);
@@ -360,18 +360,21 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
         if(op==3){
             if(validaMesa(mesa,carta,validturno)){
                 ncartas=pedeCarta(carta,jogador,posicao,ncartas);
-                for(int i=0;i<jogador[posicao].manga;i++)   printf("Carta[%d]: %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
+                printf("\nNova mao do jogador %d:\n",posicao);
+                for(int i=0;i<jogador[posicao].manga;i++)   printf("%d- %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
                 break;
             }else printf("Mesa invalida!\n");
         }
         if(op==4){
-            for(int i=0;i<jogador[posicao].manga;i++)   printf("Carta[%d]: %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
+            for(int i=0;i<jogador[posicao].manga;i++)   printf("%d- %c%c\n",i,carta[jogador[posicao].mao[i]].valor,carta[jogador[posicao].mao[i]].naipe);
             printf("Escolha uma carta: ");
             scanf("%d",&p);
+            setbuf(stdin,NULL);
             while(p<0||p>=(jogador[posicao].manga)){
                 printf("Entrada invalida!\n");
                 printf("Escolha uma carta: ");
                 scanf("%d",&p);
+                setbuf(stdin,NULL);
             }
             if(usada[p]) printf("Carta ja transferida!\n");
             else{
@@ -393,10 +396,12 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
                 for(int i=0;i<mesa->quantidadejogada;i++) printf("%d- %c%c\n",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
                 printf("Escolha uma carta: ");
                 scanf("%d",&p);
+                setbuf(stdin,NULL);
                 while(p<0||p>=(mesa->quantidadejogada)){
                     printf("Entrada invalida!\n");
                     printf("Escolha uma carta: ");
                     scanf("%d",&p);
+                    setbuf(stdin,NULL);
                 }
                 p+=jogador[posicao].manga;
                 if(usada[p]) printf("Carta ja transferida!\n");
@@ -473,17 +478,19 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
         if(op==8){
             if(qtdinicial==jogador[posicao].manga) printf("Nao mexeu!\n");
             else if(validaMesa(mesa,carta,validturno)){
-                printf("Fim de turno valido!\n");
                 break;
             }else printf("Mesa invalida!\n");
         }
         menuTurn();
         scanf("%d",&op);
+        setbuf(stdin,NULL);
         while(op<1||op>8){
             printf("Opcao invalida!\n<?> ");
             scanf("%d",&op);
+            setbuf(stdin,NULL);
         }
     }
+    printf("\nFim de turno!\n\n");
     jogador[posicao].turno=validturno;
     free(usada);
     free(transfere);
@@ -493,7 +500,9 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int posicao, int ncartas){
 int main(){
     srand(time(NULL));
     pilha *carta = (pilha *)malloc(106*sizeof(pilha));
+    if(!carta) return 0;
     tabela *mesa = (tabela *)malloc(sizeof(tabela));
+    if(!mesa) return 0;
     mesa->jogada=NULL;
     mesa->quantidadejogada=0;
     mesa->trucos=0;
@@ -501,22 +510,30 @@ int main(){
     int nplayers,ncartas=106;
     printf("Entre com o numero de jogadores (1 a 4): ");
     scanf("%d",&nplayers);
+    setbuf(stdin,NULL);
     while(nplayers<1||nplayers>4){
         printf("Opcao invalida!\n<?> ");
         scanf("%d",&nplayers);
+        setbuf(stdin,NULL);
     }
     player *jogador = (player *)malloc(nplayers*sizeof(jogador));
-    printf("Escolha o modo de jogo(1. Ler baralho / 2. Incializar baralho): ");
+    if(!jogador) return 0;
+    for(int i=0;i<nplayers;i++) jogador[i].mao=NULL;
+    printf("Escolha o modo de jogo(1. Ler baralho / 2. Inicializar baralho): ");
     int p;
     scanf("%d",&p);
+    setbuf(stdin,NULL);
     while(p<1||p>2){
         printf("Opcao invalida!\n<?> ");
         scanf("%d",&p);
+        setbuf(stdin,NULL);
     }
     if(p==1){
         char baralho[15];
         printf("Entre com o nome do arquivo: ");
-        scanf("%s",baralho);
+        fgets(baralho,15,stdin);
+        setbuf(stdin,NULL);
+        baralho[strlen(baralho)-1]='\0';
         strcat(baralho,".txt");
         arquivo=fopen(baralho,"rt");
         if(arquivo){
@@ -529,7 +546,7 @@ int main(){
     }else if(p==2){
         inicializaPilha(carta);
     }
-    ncartas=distribuiAlternate(carta,jogador,nplayers,ncartas);
+    ncartas=distribuiAlternado(carta,jogador,nplayers,ncartas);
     p=0;
     while(1){
         ncartas=turn(carta,jogador,mesa,p,ncartas);
@@ -538,10 +555,41 @@ int main(){
             return 0;
         }else if(!ncartas){
             printf("Fim de jogo!");
-            return 0;
+            int *finalpontos=(int *)calloc(nplayers,sizeof(int));
+            int *posicao=(int *)calloc(nplayers,sizeof(int));
+            for(int i=0;i<nplayers;i++){
+                for(p=0;p<jogador[i].manga;p++){
+                    if(carta[jogador[i].mao[p]].valor=='*')   finalpontos[i]+=20;
+                    else if(carta[jogador[i].mao[p]].valor<58) finalpontos[i]+=((int)carta[jogador[i].mao[p]].valor-48);
+                    else finalpontos[i]+=(int)carta[jogador[i].mao[p]].valor-55;
+                }
+                posicao[i]=i;
+                printf("\nPontos do jogador %d: %d\n",posicao[i],finalpontos[i]);
+            }
+            int menor,auxiliar,j,poker;
+            for(int i=0;i<nplayers;i++){
+                menor=i;
+                for(j=i+1;j<nplayers;j++){
+                    if(finalpontos[j]<finalpontos[menor]) menor=j;
+                }
+                auxiliar=finalpontos[menor];
+                poker=posicao[menor];
+                finalpontos[menor]=finalpontos[i];
+                posicao[menor]=posicao[i];
+                finalpontos[i]=auxiliar;
+                posicao[i]=poker;
+            }
+            if(finalpontos[0]==finalpontos[1]) printf("\nEmpate!!!\n");
+            else printf("\nCAMPEAO: Jogador %d !!!\n",posicao[0]);
+            free(finalpontos);
+            free(posicao);
+            break;
         }
         p++;
         if(p==nplayers) p=0;
     }
+    free(carta);
+    free(mesa);
+    free(jogador);
     return 0;
 }
