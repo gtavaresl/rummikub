@@ -14,7 +14,7 @@ typedef struct{
 }player;
 
 typedef struct{
-    int deck,grupo; // TENHO QUE AJEITAR PRA FAZER FUNCIONAR O SISTEMA DE COMBINAÃ‡Ã•ES
+    int deck,grupo; // TENHO QUE AJEITAR PRA FAZER FUNCIONAR O SISTEMA DE COMBINAÇÕES
 }rhcp;
 
 typedef struct{
@@ -51,7 +51,7 @@ void inicializaPilha(pilha *carta){
         carta[i].naipe='*';
         //printf("%c%c\n",carta[i].valor,carta[i].naipe);
     }
-    //Algoritmo de Fisher-Yates (soluÃ§Ã£o de Durstenfeld) p/ embaralhar as cartas
+    //Algoritmo de Fisher-Yates (solução de Durstenfeld) p/ embaralhar as cartas
     int falta = 106;
     while (falta>0){
         int k = rand() % (falta);
@@ -170,9 +170,10 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
 
 void vizualizaMesa(pilha *carta,tabela *mesa, int ncartas){
     printf("\nTotal de cartas na mesa: %d\n\n",mesa->quantidadejogada);
-    printf("Mesa:\n|");
-    if(mesa->jogada==NULL) printf("Vazia!\n");
+    printf("Mesa:\n");
+    if(mesa->quantidadejogada==0) printf("Vazia!\n");
     else{
+        printf("|");
         int *tamanhoCombo=(int *)calloc(1,sizeof(int));
         int combo=1;
         for(int i=0;i<mesa->quantidadejogada;i++){
@@ -228,7 +229,7 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
                 int a,b;
                 int p=0;
                 ok=0;
-                // Escolher a carta base, inÃ­cio da sequÃªncia
+                // Escolher a carta base, início da sequência
                 while(p<3){
                     if(carta[transfere[p].deck].naipe!='*'){
                         break;
@@ -259,7 +260,7 @@ int validaJogada(pilha *carta, rhcp *transfere, int transferencia, int turno){
             int a,b;
             int p=0;
             ok=0;
-            // Escolher a carta base, inÃ­cio da sequÃªncia
+            // Escolher a carta base, início da sequência
             while(p<3){
                 if(carta[transfere[p].deck].naipe!='*'){
                     break;
@@ -336,7 +337,8 @@ void menuTurn(){
     printf("5. Combina carta da mesa\n");
     printf("6. Joga\n");
     printf("7. Desfazer combinacao\n");
-    printf("8. Encerrar jogada\n");
+    printf("8. Desfazer jogada\n");
+    printf("9. Encerrar jogada\n");
     printf("<?> ");
 }
 
@@ -346,6 +348,15 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
     int op,p=-1,transferencia=0,transferenciamesa=0;
     int backup_manga=jogador[posicao].manga;
     int validturno=jogador[posicao].turno;
+    int *backup_mao=(int *)malloc(backup_manga*sizeof(int)); // BACKUP DA MAO DO JOGADOR
+    for(int i=0;i<backup_manga;i++) backup_mao[i]=jogador[posicao].mao[i]; // CÓPIA DO VALOR DE CADA CARTA DA MÃO P/ O BACKUP
+    int backup_qtdmesa=mesa->quantidadejogada;
+    int backup_trucos=mesa->trucos;
+    rhcp *backup_mesa=(rhcp *)malloc(backup_qtdmesa*sizeof(rhcp));
+    for(int i=0;i<backup_qtdmesa;i++){
+        backup_mesa[i].deck=mesa->jogada[i].deck;
+        backup_mesa[i].grupo=mesa->jogada[i].grupo;
+    }
     int *usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
     rhcp *transfere=NULL;
     scanf("%d",&op);
@@ -430,7 +441,7 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
                 for(int i=0;i<transferencia;i++) printf(" %d - %c%c |",i,carta[transfere[i].deck].valor,carta[transfere[i].deck].naipe);
                 if(validaJogada(carta,transfere,transferencia,validturno)){
                     // TENHO QUE RETIRAR OS QUE ESTAVAM NA MESA P/ JOGAR NOVAMENTE
-                    // MAS PRECISO MUDAR A COMBINAÃ‡ÃƒO DAS QUE JÃ ESTAVAM NA MESA
+                    // MAS PRECISO MUDAR A COMBINAÇÃO DAS QUE JÁ ESTAVAM NA MESA
                     if(transferenciamesa>0){
                         for(int i=0;i<transferencia;i++){
                             for(int busca=0;busca<mesa->quantidadejogada;busca++){
@@ -493,6 +504,28 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
             }else printf("Area de transferencia vazia!\n");
         }
         if(op==8){
+            printf("Desfazer jogada!\n");
+            jogador[posicao].manga=backup_manga;
+            jogador[posicao].turno=validturno;
+            jogador[posicao].mao=(int *)realloc(jogador[posicao].mao,backup_manga*sizeof(int)); // MÃO DO JOGADOR RETORNA PARA O TAMANHO ORIGINAL
+            for(int i=0;i<backup_manga;i++) jogador[posicao].mao[i]=backup_mao[i]; // CÓPIA DO VALOR DE CADA CARTA DO BACKUP P/ A MÃO
+            mesa->quantidadejogada=backup_qtdmesa;
+            mesa->trucos=backup_trucos;
+            mesa->jogada=(rhcp *)realloc(mesa->jogada,backup_qtdmesa*sizeof(rhcp));
+            for(int i=0;i<backup_qtdmesa;i++){
+                mesa->jogada[i].deck=backup_mesa[i].deck;
+                mesa->jogada[i].grupo=backup_mesa[i].grupo;
+            }
+            free(transfere);
+            transfere=NULL;
+            transferencia=0;
+            transferenciamesa=0;
+            free(usada);
+            usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
+            printf("Undo!\n");
+            vizualizaMesa(carta,mesa,ncartas);
+        }
+        if(op==9){
             if(backup_manga==jogador[posicao].manga) printf("O jogador ainda nao realizou nenhum movimento!\n");
             else if(validaMesa(mesa,carta,validturno)){
                 break;
@@ -509,6 +542,8 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
     }
     printf("\nFim de turno!\n\n");
     jogador[posicao].turno=validturno;
+    free(backup_mao);
+    free(backup_mesa);
     free(usada);
     free(transfere);
     return ncartas;
@@ -525,10 +560,10 @@ int main(){
     mesa->trucos=0;
     FILE *arquivo;
     int nplayers,ncartas=106;
-    printf("Entre com o numero de jogadores (1 a 4): ");
+    printf("Entre com o numero de jogadores (1 a 5): ");
     scanf("%d",&nplayers);
     setbuf(stdin,NULL);
-    while(nplayers<1||nplayers>4){
+    while(nplayers<1||nplayers>5){
         printf("Opcao invalida!\n<?> ");
         scanf("%d",&nplayers);
         setbuf(stdin,NULL);
