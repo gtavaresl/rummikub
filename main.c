@@ -5,7 +5,7 @@
 #include <time.h>
 
 typedef struct{
-    char valor,naipe; // guadra a carta real
+    char valor,naipe; // guarda a carta real
 }pilha;
 
 typedef struct{
@@ -88,7 +88,7 @@ int distribuiAlternado(pilha *carta, player *jogador, int nplayers, int ncartas)
 }
 
 
-void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
+void visualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
     // função que a mão do jogador e permite a alternância de posições
     printf("\n\nMao do jogador %d:\n\n|",posicao);
     int i;
@@ -173,7 +173,7 @@ void vizualizaMao(pilha *carta, player *jogador, int posicao, int *usada){
     }
 }
 
-void vizualizaMesa(pilha *carta,tabela *mesa, int ncartas){
+void visualizaMesa(pilha *carta,tabela *mesa, int ncartas){
     // função que exibe a mesa
     printf("\nTotal de cartas na mesa: %d\n\n",mesa->quantidadejogada);
     printf("Mesa:\n");
@@ -394,8 +394,8 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
         setbuf(stdin,NULL);
     }
     while(1){
-        if(op==1) vizualizaMao(carta,jogador,posicao,usada);
-        if(op==2) vizualizaMesa(carta,mesa,ncartas);
+        if(op==1) visualizaMao(carta,jogador,posicao,usada);
+        if(op==2) visualizaMesa(carta,mesa,ncartas);
         if(op==3){
             if(validaMesa(mesa,carta,validturno)){
                 ncartas=pedeCarta(carta,jogador,posicao,ncartas);
@@ -437,13 +437,13 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
             if(!jogador[posicao].turno) printf("\n\nPrimeira jogada!\n\n");
             else if(mesa->quantidadejogada==0) printf("\nMesa vazia!\n\n");
             else{
-                printf("\nMesa: \n\n");
+                printf("\n\nMesa: \n\n");
                 for(int i=0;i<mesa->quantidadejogada;i++) printf(" %d- %c%c |",i,carta[mesa->jogada[i].deck].valor,carta[mesa->jogada[i].deck].naipe);
                 printf("\n\nEscolha uma carta: ");
                 scanf("%d",&p);
                 setbuf(stdin,NULL);
                 while(p<0||p>=(mesa->quantidadejogada)){
-                    printf("Entrada invalida!\n");
+                    printf("\nEntrada invalida!\n");
                     printf("Escolha uma carta: ");
                     scanf("%d",&p);
                     setbuf(stdin,NULL);
@@ -457,7 +457,7 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
                     if(transfere!=NULL){
                         transfere[transferencia-1].deck=mesa->jogada[p-jogador[posicao].manga].deck;
                         usada[p]++;
-                        printf("\nArea de transferencia:\n\n|");
+                        printf("\n\nArea de transferencia:\n\n|");
                         for(int i=0;i<transferencia;i++) printf(" %d - %c%c |",i,carta[transfere[i].deck].valor,carta[transfere[i].deck].naipe);
                         printf("\n");
                     }else printf("ERRO!\n");
@@ -499,7 +499,7 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
                         mesa->jogada[i].grupo=mesa->trucos;
                     }
                     mesa->quantidadejogada+=transferencia;
-                    vizualizaMesa(carta,mesa,ncartas);
+                    visualizaMesa(carta,mesa,ncartas);
                     int j=0;
                     // retira as cartas que estavam na mão do jogador e foram jogadas
                     for(int i=0;i<jogador[posicao].manga;i++){
@@ -554,7 +554,7 @@ int turn(pilha *carta, player *jogador,tabela *mesa, int nplayers, int posicao, 
             transferenciamesa=0;
             free(usada);
             usada=(int*)calloc((jogador[posicao].manga+mesa->quantidadejogada),sizeof(int));
-            vizualizaMesa(carta,mesa,ncartas);
+            visualizaMesa(carta,mesa,ncartas);
         }
         if(op==9){
             // verifica se o fim do turno é válido
